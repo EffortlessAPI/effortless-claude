@@ -18,30 +18,32 @@ When installed as a Claude Code skill, Claude will automatically activate this k
 
 ## Installation
 
-### Option A: Symlink (recommended for contributors)
+### Option A: Ask Claude to install it
 
-If you've cloned this repo, symlink it into your Claude Code skills directory:
+In any Claude Code session, say:
+
+```
+Clone https://github.com/EffortlessAPI/effortless-claude and run install.sh
+```
+
+Claude will clone the repo, run the installer, and the skill will be available in all future sessions.
+
+### Option B: One-liner
 
 ```bash
-# Create the skills directory if it doesn't exist
-mkdir -p ~/.claude/skills
+git clone https://github.com/EffortlessAPI/effortless-claude.git /tmp/effortless-claude && bash /tmp/effortless-claude/install.sh && rm -rf /tmp/effortless-claude
+```
 
-# Symlink this repo as the effortless-rulebooks skill
+### Option C: Symlink (recommended for contributors)
+
+If you've cloned this repo locally, symlink it into your Claude Code skills directory:
+
+```bash
+mkdir -p ~/.claude/skills
 ln -sf /path/to/effortless-claude ~/.claude/skills/effortless-rulebooks
 ```
 
-Claude Code will automatically discover and load `SKILL.md` from this directory when working on ERB projects.
-
-### Option B: Direct copy
-
-Copy the skill files into your Claude Code skills directory:
-
-```bash
-mkdir -p ~/.claude/skills/effortless-rulebooks
-cp SKILL.md ~/.claude/skills/effortless-rulebooks/SKILL.md
-```
-
-### Option C: Clone directly into skills
+### Option D: Clone directly into skills
 
 ```bash
 git clone https://github.com/EffortlessAPI/effortless-claude.git ~/.claude/skills/effortless-rulebooks
