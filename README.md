@@ -1,20 +1,24 @@
 # Effortless Claude
 
-A [Claude Code](https://claude.ai/claude-code) skill that teaches Claude how to work with **Effortless Rulebook (ERB)** projects — schema-first, Airtable-sourced, multi-substrate code generation.
+A [Claude Code](https://claude.ai/claude-code) skill suite that teaches Claude how to work with **Effortless Rulebook (ERB)** projects — schema-first, Airtable-sourced, multi-substrate code generation.
 
 ## What This Does
 
-When installed as a Claude Code skill, Claude will automatically activate this knowledge whenever it detects an ERB project (presence of `ssotme.json`, `effortless-rulebook/`, or `effortless-rulebook.json`). It teaches Claude to:
+When installed as Claude Code skills, Claude will automatically activate the relevant knowledge whenever it detects an ERB project (presence of `ssotme.json`, `effortless-rulebook/`, or `effortless-rulebook.json`). The skills are modular — Claude only loads what's needed for the task at hand.
 
-- **Query the rulebook JSON first** instead of grep-ing through generated code — saving tokens and getting accurate answers
-- **Extract schema without data** to minimize context window usage on large rulebooks
-- **Understand the DAG structure** — tables, foreign keys, calculated fields, lookups, and aggregations
-- **Follow ERB naming conventions** — PascalCase tables, `{Singular}Id` primary keys, singular FK names, plural reverse relationships, no many-to-many
-- **Never edit generated files** (`00`-`05` SQL) — only use `*b-customize-*` files for project-specific logic
-- **Always read from `vw_*` views**, never base tables — views contain all calculated/lookup fields
-- **Use the Airtable API** for schema changes, then `effortless build` to regenerate
-- **Understand the full build pipeline** — `ssotme.json` transpilers, `airtable-to-rulebook`, `rulebook-to-postgres`, and more
-- **Generate conformant code** across PostgreSQL, Python, Go, Excel, C#, OWL/RDF, and other substrates
+## Skills
+
+| Skill | Description |
+|-------|-------------|
+| `rulebook-orchestrator` | Top-level ERB overview, mental model, and routing to other skills |
+| `rulebook-query` | Querying `effortless-rulebook.json` — listing tables, extracting schema, finding relationships |
+| `rulebook-schema` | JSON structure reference — field types, datatypes, formula syntax, `_meta` |
+| `rulebook-conventions` | Naming rules, DAG structure, PK/FK patterns, no many-to-many |
+| `rulebook-workflow` | Change workflow — Path A (Airtable-first) vs Path B (Rulebook-first), permission checkpoints |
+| `rulebook-pipeline` | Build system — `ssotme.json`, transpilers, `effortless build`, multi-substrate architecture |
+| `rulebook-sql` | Generated SQL — views vs tables, `00`-`05` files, `*b-customize-*` files, SQL patterns |
+| `rulebook-airtable` | Airtable API — adding fields, creating tables, modifying schema, API limitations |
+| `rulebook-diagnostics` | Diagnostic queries, DAG validation, legacy code migration |
 
 ## Installation
 
@@ -26,7 +30,7 @@ In any Claude Code session, say:
 Clone https://github.com/EffortlessAPI/effortless-claude and run install.sh
 ```
 
-Claude will clone the repo, run the installer, and the skill will be available in all future sessions.
+Claude will clone the repo, run the installer, and the skills will be available in all future sessions.
 
 ### Option B: One-liner
 
@@ -36,18 +40,36 @@ git clone https://github.com/EffortlessAPI/effortless-claude.git /tmp/effortless
 
 ### Option C: Symlink (recommended for contributors)
 
-If you've cloned this repo locally, symlink it into your Claude Code skills directory:
+If you've cloned this repo locally, symlink each skill into your Claude Code skills directory:
 
 ```bash
 mkdir -p ~/.claude/skills
-ln -sf /path/to/effortless-claude ~/.claude/skills/effortless-rulebooks
+for skill in skills/rulebook-*; do
+  ln -sf "$(pwd)/$skill" ~/.claude/skills/$(basename "$skill")
+done
 ```
 
-### Option D: Clone directly into skills
+### Option D: Clone and install
 
 ```bash
-git clone https://github.com/EffortlessAPI/effortless-claude.git ~/.claude/skills/effortless-rulebooks
+git clone https://github.com/EffortlessAPI/effortless-claude.git
+cd effortless-claude
+bash install.sh
 ```
+
+## Updating
+
+If you installed via `install.sh`, just re-run it to update:
+
+```bash
+cd /path/to/effortless-claude
+git pull
+bash install.sh
+```
+
+If you used the symlink approach, updates to the source repo are reflected automatically.
+
+The installer will also clean up the old monolithic `effortless-rulebooks` skill if present.
 
 ## Verification
 
@@ -94,61 +116,42 @@ The key insight: **the rulebook JSON is the invariant**. All generated code is d
 | `postgres/05-insert-data.sql` | Seed data (generated) |
 | `postgres/*b-customize-*.sql` | User customizations (preserved across builds) |
 
-## Skill Contents
+## Project Structure
 
-| File | Purpose |
-|------|---------|
-| `SKILL.md` | The skill definition — YAML frontmatter + full ERB reference. This is what Claude Code loads. |
-| `CLAUDE.md` | Pointer file for Claude Code's secondary discovery mechanism. |
-| `README.md` | This file — human-readable installation and usage guide. |
-
-## Key Principles the Skill Enforces
-
-1. **Rulebook-first querying** — Always parse `effortless-rulebook.json` before reading generated code. The schema is 10-20% of the file; extract it to save tokens.
-
-2. **DAG integrity** — The rulebook is a Directed Acyclic Graph. Tables are nodes, FKs are edges. No cycles, no many-to-many. If you need M:N, use a junction table.
-
-3. **Views for reads, tables for writes** — `vw_*` views contain all calculated, lookup, and aggregation fields. Base tables are only for INSERT/UPDATE/DELETE.
-
-4. **Never edit generated files** — Files `00`-`05` in `postgres/` are overwritten on every build. Use `*b-customize-*` files for project-specific SQL.
-
-5. **Airtable is the SSoT** — Schema changes go through the Airtable API (or UI for formula fields), then `effortless build` regenerates everything.
-
-6. **No fallback to manual edits** — If the Airtable API can't do something (e.g., formula fields), Claude stops and asks the user rather than hacking generated files.
-
-## Naming Conventions
-
-The skill teaches Claude these ERB naming rules:
-
-- **Tables**: PascalCase, plural (`Customers`, `WorkflowSteps`)
-- **Primary Keys**: `{SingularTable}Id` (`CustomerId`, `RoleId`)
-- **Foreign Keys**: Singular entity name, no "Id" suffix (`Order.Customer`, not `Order.CustomerId`)
-- **Reverse FKs**: Plural (`Customer.Orders`)
-- **Booleans**: `Is{Something}` (`IsActive`, `IsWinningBid`)
-- **Aggregations**: `CountOf{Related}` (`CountOfOrders`)
-- **Lookups**: `{FK}{Field}` (`AssignedRoleLabel`)
-- **Every table**: Must have a `Name` field (human-readable compound key)
-- **Every field**: Must have a `Description`
-
-## Updates
-
-To update the skill after pulling new changes:
-
-```bash
-cd ~/.claude/skills/effortless-rulebooks
-git pull
 ```
-
-If you used the symlink approach, updates to the source repo are reflected automatically.
+effortless-claude/
+├── skills/
+│   ├── rulebook-orchestrator/
+│   │   └── SKILL.md
+│   ├── rulebook-query/
+│   │   └── SKILL.md
+│   ├── rulebook-schema/
+│   │   └── SKILL.md
+│   ├── rulebook-conventions/
+│   │   └── SKILL.md
+│   ├── rulebook-workflow/
+│   │   └── SKILL.md
+│   ├── rulebook-pipeline/
+│   │   └── SKILL.md
+│   ├── rulebook-sql/
+│   │   └── SKILL.md
+│   ├── rulebook-airtable/
+│   │   └── SKILL.md
+│   └── rulebook-diagnostics/
+│       └── SKILL.md
+├── install.sh
+├── README.md
+└── SKILL.md              ← legacy monolithic file (kept for reference)
+```
 
 ## Contributing
 
-This skill is maintained by [EffortlessAPI](https://effortlessapi.com). To suggest improvements:
+This skill suite is maintained by [EffortlessAPI](https://effortlessapi.com). To suggest improvements:
 
 1. Open an issue on this repo
-2. Or submit a PR with changes to `SKILL.md`
+2. Or submit a PR with changes to the relevant `skills/rulebook-*/SKILL.md` file
 
-The `SKILL.md` file is the single source of truth for the skill's behavior. Keep it focused on what Claude needs to know — not what humans need to read (that's what this README is for).
+Each skill file under `skills/` is the source of truth for that skill's behavior. The `install.sh` script copies them into `~/.claude/skills/`.
 
 ## License
 
