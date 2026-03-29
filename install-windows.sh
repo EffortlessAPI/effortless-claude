@@ -22,18 +22,16 @@ else
   SKILLS_DEST="$HOME/.claude/skills"
 fi
 
-# All skill folder names (must match directories under skills/)
-SKILLS=(
-  rulebook-orchestrator
-  rulebook-query
-  rulebook-schema
-  rulebook-conventions
-  rulebook-workflow
-  rulebook-pipeline
-  rulebook-sql
-  rulebook-airtable
-  rulebook-diagnostics
-)
+# Dynamically discover all skill folders under skills/
+SKILLS=()
+for d in "$SKILLS_SRC"/*/; do
+  [ -d "$d" ] && SKILLS+=("$(basename "$d")")
+done
+
+if [ "${#SKILLS[@]}" -eq 0 ]; then
+  echo "ERROR: No skill folders found in $SKILLS_SRC"
+  exit 1
+fi
 
 # ---------- parse flags ----------
 MODE="install"
@@ -273,17 +271,29 @@ echo ""
 [ "$skipped" -gt 0 ]   && echo "  Skipped:   $skipped skill(s) (kept existing)"
 [ "$installed" -eq 0 ] && [ "$updated" -eq 0 ] && [ "$skipped" -eq 0 ] && echo "  No changes made."
 echo ""
-echo "Skills installed to: $SKILLS_DEST/rulebook-*"
+echo "Skills installed to: $SKILLS_DEST/"
 echo ""
-echo "  rulebook-orchestrator   — top-level ERB overview and routing"
-echo "  rulebook-query          — querying effortless-rulebook.json"
-echo "  rulebook-schema         — JSON structure reference"
-echo "  rulebook-conventions    — naming rules, DAG, FK patterns"
-echo "  rulebook-workflow       — change workflow (Path A / Path B)"
-echo "  rulebook-pipeline       — ssotme.json, transpilers, build"
-echo "  rulebook-sql            — generated SQL, views, customization files"
-echo "  rulebook-airtable       — Airtable API operations"
-echo "  rulebook-diagnostics    — diagnostic queries, legacy migration"
+for skill in "${SKILLS[@]}"; do
+  dest="$SKILLS_DEST/$skill"
+  if [ -e "$dest" ]; then
+    # Extract first line of description from SKILL.md frontmatter
+    desc=""
+    skill_md="$SKILLS_SRC/$skill/SKILL.md"
+    if [ -f "$skill_md" ]; then
+      # Handle both inline (description: text) and folded (description: >\n  text) YAML
+      desc="$(awk '/^description:/{
+        sub(/^description: */, "");
+        if ($0 == ">" || $0 == "|" || $0 == "") { getline; sub(/^  */, ""); }
+        print; exit
+      }' "$skill_md" | cut -c1-60)"
+    fi
+    if [ -n "$desc" ]; then
+      printf "  %-25s — %s\n" "$skill" "$desc"
+    else
+      echo "  $skill"
+    fi
+  fi
+done
 echo ""
 echo "Skills will activate automatically in your next Claude Code session."
 echo "To uninstall: bash install-windows.sh --uninstall"
