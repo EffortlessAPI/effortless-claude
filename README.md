@@ -26,19 +26,31 @@ When installed as Claude Code skills, Claude will automatically activate the rel
 
 In any Claude Code session, say:
 
+**macOS / Linux:**
 ```
 Clone https://github.com/EffortlessAPI/effortless-claude and run install.sh
+```
+
+**Windows (Git Bash):**
+```
+Clone https://github.com/EffortlessAPI/effortless-claude and run install-windows.sh
 ```
 
 Claude will clone the repo, run the installer, and the skills will be available in all future sessions.
 
 ### Option B: One-liner
 
+**macOS / Linux:**
 ```bash
 git clone https://github.com/EffortlessAPI/effortless-claude.git /tmp/effortless-claude && bash /tmp/effortless-claude/install.sh && rm -rf /tmp/effortless-claude
 ```
 
-### Option C: Symlink (recommended for contributors)
+**Windows (Git Bash):**
+```bash
+git clone https://github.com/EffortlessAPI/effortless-claude.git /tmp/effortless-claude && bash /tmp/effortless-claude/install-windows.sh && rm -r /tmp/effortless-claude
+```
+
+### Option C: Symlink (macOS / Linux contributors)
 
 If you've cloned this repo locally, symlink each skill into your Claude Code skills directory:
 
@@ -54,7 +66,8 @@ done
 ```bash
 git clone https://github.com/EffortlessAPI/effortless-claude.git
 cd effortless-claude
-bash install.sh
+bash install.sh              # macOS / Linux
+bash install-windows.sh      # Windows (Git Bash)
 ```
 
 ## Updating
@@ -139,7 +152,8 @@ effortless-claude/
 │   │   └── SKILL.md
 │   └── rulebook-diagnostics/
 │       └── SKILL.md
-├── install.sh
+├── install.sh                ← macOS / Linux installer
+├── install-windows.sh        ← Windows (Git Bash) installer
 ├── README.md
 └── SKILL.md              ← legacy monolithic file (kept for reference)
 ```
