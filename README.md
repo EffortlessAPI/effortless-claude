@@ -10,15 +10,15 @@ When installed as Claude Code skills, Claude will automatically activate the rel
 
 | Skill | Description |
 |-------|-------------|
-| `rulebook-orchestrator` | Top-level ERB overview, mental model, and routing to other skills |
-| `rulebook-query` | Querying `effortless-rulebook.json` — listing tables, extracting schema, finding relationships |
-| `rulebook-schema` | JSON structure reference — field types, datatypes, formula syntax, `_meta` |
-| `rulebook-conventions` | Naming rules, DAG structure, PK/FK patterns, no many-to-many |
-| `rulebook-workflow` | Change workflow — Path A (Airtable-first) vs Path B (Rulebook-first), permission checkpoints |
-| `rulebook-pipeline` | Build system — `ssotme.json`, transpilers, `effortless build`, multi-substrate architecture |
-| `rulebook-sql` | Generated SQL — views vs tables, `00`-`05` files, `*b-customize-*` files, SQL patterns |
-| `rulebook-airtable` | Airtable API — adding fields, creating tables, modifying schema, API limitations |
-| `rulebook-diagnostics` | Diagnostic queries, DAG validation, legacy code migration |
+| `effortless-orchestrator` | Top-level ERB overview, mental model, and routing to other skills |
+| `effortless-query` | Querying `effortless-rulebook.json` — listing tables, extracting schema, finding relationships |
+| `effortless-schema` | JSON structure reference — field types, datatypes, formula syntax, `_meta` |
+| `effortless-conventions` | Naming rules, DAG structure, PK/FK patterns, no many-to-many |
+| `effortless-workflow` | Change workflow — Path A (Airtable-first) vs Path B (Rulebook-first), permission checkpoints |
+| `effortless-pipeline` | Build system — `ssotme.json`, transpilers, `effortless build`, multi-substrate architecture |
+| `effortless-sql` | Generated SQL — views vs tables, `00`-`05` files, `*b-customize-*` files, SQL patterns |
+| `effortless-airtable` | Airtable API — adding fields, creating tables, modifying schema, API limitations |
+| `effortless-diagnostics` | Diagnostic queries, DAG validation, legacy code migration |
 
 ## Installation
 
@@ -56,7 +56,7 @@ If you've cloned this repo locally, symlink each skill into your Claude Code ski
 
 ```bash
 mkdir -p ~/.claude/skills
-for skill in skills/rulebook-*; do
+for skill in skills/effortless-*; do
   ln -sf "$(pwd)/$skill" ~/.claude/skills/$(basename "$skill")
 done
 ```
@@ -134,23 +134,23 @@ The key insight: **the rulebook JSON is the invariant**. All generated code is d
 ```
 effortless-claude/
 ├── skills/
-│   ├── rulebook-orchestrator/
+│   ├── effortless-orchestrator/
 │   │   └── SKILL.md
-│   ├── rulebook-query/
+│   ├── effortless-query/
 │   │   └── SKILL.md
-│   ├── rulebook-schema/
+│   ├── effortless-schema/
 │   │   └── SKILL.md
-│   ├── rulebook-conventions/
+│   ├── effortless-conventions/
 │   │   └── SKILL.md
-│   ├── rulebook-workflow/
+│   ├── effortless-workflow/
 │   │   └── SKILL.md
-│   ├── rulebook-pipeline/
+│   ├── effortless-pipeline/
 │   │   └── SKILL.md
-│   ├── rulebook-sql/
+│   ├── effortless-sql/
 │   │   └── SKILL.md
-│   ├── rulebook-airtable/
+│   ├── effortless-airtable/
 │   │   └── SKILL.md
-│   └── rulebook-diagnostics/
+│   └── effortless-diagnostics/
 │       └── SKILL.md
 ├── install.sh                ← macOS / Linux installer
 ├── install-windows.sh        ← Windows (Git Bash) installer
@@ -163,7 +163,7 @@ effortless-claude/
 This skill suite is maintained by [EffortlessAPI](https://effortlessapi.com). To suggest improvements:
 
 1. Open an issue on this repo
-2. Or submit a PR with changes to the relevant `skills/rulebook-*/SKILL.md` file
+2. Or submit a PR with changes to the relevant `skills/effortless-*/SKILL.md` file
 
 Each skill file under `skills/` is the source of truth for that skill's behavior. The `install.sh` script copies them into `~/.claude/skills/`.
 

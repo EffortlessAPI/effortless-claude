@@ -1,5 +1,5 @@
 ---
-name: rulebook-sql
+name: effortless-sql
 description: >
   Use when working with ERB-generated SQL — reading from vw_* views vs base tables,
   understanding generated files (00-05), using *b-customize-* files, SQL function

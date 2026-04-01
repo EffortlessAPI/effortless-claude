@@ -1,5 +1,5 @@
 ---
-name: rulebook-airtable
+name: effortless-airtable
 description: >
   Use when making schema or data changes via the Airtable API in an ERB project —
   adding fields, creating tables, modifying existing fields, or when you need to
@@ -90,7 +90,7 @@ curl -s -X POST "https://api.airtable.com/v0/meta/bases/{BASE_ID}/tables" \
 
 ## Generating OMNI Prompts for Base Setup
 
-When creating prompts for Airtable's OMNI AI to set up tables, **always use the two-part split pattern** documented in the `rulebook-omni-prompt` skill:
+When creating prompts for Airtable's OMNI AI to set up tables, **always use the two-part split pattern** documented in the `effortless-omni-prompt` skill:
 
 - **Part 1**: Raw fields + `Link to another record` FKs + Name formula. No other computed fields.
 - **Part 2**: Lookups & formulas, **organized by table** (OMNI can only work on one table at a time). Excludes MANY-side rollups.

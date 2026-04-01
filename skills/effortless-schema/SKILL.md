@@ -1,5 +1,5 @@
 ---
-name: rulebook-schema
+name: effortless-schema
 description: >
   Use when you need to understand the structure of effortless-rulebook.json —
   table objects, field schema definitions, field types (raw, calculated, lookup,

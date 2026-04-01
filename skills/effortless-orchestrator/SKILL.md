@@ -1,5 +1,5 @@
 ---
-name: rulebook-orchestrator
+name: effortless-orchestrator
 description: >
   Use when working with Effortless Rulebook (ERB) projects — Airtable-sourced
   schema-first business rules, ssotme.json build pipelines, effortless-rulebook.json
@@ -41,15 +41,15 @@ This orchestrator provides the big picture. For specifics, the following compani
 
 | Skill | When to Use |
 |-------|-------------|
-| `rulebook-query` | Querying the rulebook JSON — listing tables, extracting schema, finding relationships, inspecting formulas |
-| `rulebook-schema` | Understanding the JSON structure — field types, datatypes, formula syntax, `_meta` section |
-| `rulebook-conventions` | Naming rules, DAG structure, PK/FK patterns, no many-to-many |
-| `rulebook-workflow` | Making changes — Path A (Airtable-first) vs Path B (Rulebook-first), permission checkpoints |
-| `rulebook-pipeline` | Build system — `ssotme.json`, transpilers, `effortless build`, installation |
-| `rulebook-sql` | Generated SQL — views vs tables, `00`-`05` files, `*b-customize-*` files, SQL patterns |
-| `rulebook-airtable` | Airtable API — adding fields, creating tables, modifying schema, API limitations |
-| `rulebook-omni-prompt` | Generating OMNI prompts for Airtable — the two-part split pattern (Part 1: raw fields + linked records, Part 2: lookups/formulas per table) |
-| `rulebook-diagnostics` | Diagnostic queries, DAG validation, legacy code migration |
+| `effortless-query` | Querying the rulebook JSON — listing tables, extracting schema, finding relationships, inspecting formulas |
+| `effortless-schema` | Understanding the JSON structure — field types, datatypes, formula syntax, `_meta` section |
+| `effortless-conventions` | Naming rules, DAG structure, PK/FK patterns, no many-to-many |
+| `effortless-workflow` | Making changes — Path A (Airtable-first) vs Path B (Rulebook-first), permission checkpoints |
+| `effortless-pipeline` | Build system — `ssotme.json`, transpilers, `effortless build`, installation |
+| `effortless-sql` | Generated SQL — views vs tables, `00`-`05` files, `*b-customize-*` files, SQL patterns |
+| `effortless-airtable` | Airtable API — adding fields, creating tables, modifying schema, API limitations |
+| `effortless-omni-prompt` | Generating OMNI prompts for Airtable — the two-part split pattern (Part 1: raw fields + linked records, Part 2: lookups/formulas per table) |
+| `effortless-diagnostics` | Diagnostic queries, DAG validation, legacy code migration |
 
 ## Quick Reference
 

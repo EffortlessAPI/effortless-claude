@@ -1,5 +1,5 @@
 ---
-name: rulebook-omni-prompt
+name: effortless-omni-prompt
 description: >
   Use when generating OMNI prompts for Airtable base setup from an ERB schema —
   the two-part split pattern that puts linked records in Part 1 and lookups/formulas

@@ -1,5 +1,5 @@
 ---
-name: rulebook-pipeline
+name: effortless-pipeline
 description: >
   Use when working with the ERB build pipeline — ssotme.json configuration,
   transpiler catalog, effortless build commands, the -id flag, transpiler

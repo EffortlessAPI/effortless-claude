@@ -1,5 +1,5 @@
 ---
-name: rulebook-query
+name: effortless-query
 description: >
   Use when querying an effortless-rulebook.json file — listing tables, extracting
   schema without data, finding FK relationships, inspecting calculated fields and

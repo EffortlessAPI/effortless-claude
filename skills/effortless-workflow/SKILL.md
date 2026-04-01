@@ -1,5 +1,5 @@
 ---
-name: rulebook-workflow
+name: effortless-workflow
 description: >
   Use when making changes to an ERB project — modifying effortless-rulebook.json,
   Airtable schema or data, or running effortless build. Covers Path A (Airtable-first)

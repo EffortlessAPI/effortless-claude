@@ -1,5 +1,5 @@
 ---
-name: rulebook-diagnostics
+name: effortless-diagnostics
 description: >
   Use when diagnosing ERB project health — validating DAG integrity, checking for
   broken FK targets, finding JOIN anti-patterns in application code, migrating

@@ -1,5 +1,5 @@
 ---
-name: rulebook-conventions
+name: effortless-conventions
 description: >
   Use when you need ERB naming conventions, DAG structure rules, PascalCase table
   names, primary key and foreign key patterns, the Name field requirement, or
