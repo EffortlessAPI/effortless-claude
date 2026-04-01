@@ -1,5 +1,5 @@
 #!/bin/bash
-# Install / Uninstall the Effortless Rulebook skills for Claude Code
+# Install / Uninstall the Effortless Claude skills for Claude Code
 #
 # Usage:
 #   bash install.sh              — interactive install (asks before overwriting)
@@ -7,7 +7,7 @@
 #   bash install.sh --symlink    — symlink skills instead of copying (for contributors)
 #   bash install.sh --uninstall  — remove installed skills
 #
-# Installs all rulebook-* skills into ~/.claude/skills/
+# Installs all effortless-* skills into ~/.claude/skills/
 # Each skill gets its own folder as required by Claude Code.
 
 set -e
@@ -43,7 +43,7 @@ for arg in "$@"; do
       echo "  (no flags)   Interactive install — asks before overwriting"
       echo "  --yes, -y    Non-interactive — overwrite without asking"
       echo "  --symlink    Symlink skills instead of copying (for contributors)"
-      echo "  --uninstall  Remove all installed rulebook-* skills"
+      echo "  --uninstall  Remove all installed effortless-* skills"
       echo "  --help, -h   Show this help"
       exit 0
       ;;
@@ -114,7 +114,7 @@ ask_yes_no() {
 # ================================================================
 if [ "$MODE" = "uninstall" ]; then
   echo ""
-  echo "=== Effortless Rulebook Skills — Uninstall ==="
+  echo "=== Effortless Claude Skills — Uninstall ==="
   echo ""
   echo "This will remove the following skills from $SKILLS_DEST:"
   echo ""
@@ -133,12 +133,15 @@ if [ "$MODE" = "uninstall" ]; then
     fi
   done
 
-  # Also check for old monolithic skill
-  OLD_SKILL="$SKILLS_DEST/effortless-rulebooks"
-  if [ -e "$OLD_SKILL" ] || [ -L "$OLD_SKILL" ]; then
-    ((found++))
-    echo "  effortless-rulebooks  (legacy monolithic skill)"
-  fi
+  # Also check for legacy skills (old monolithic + old rulebook-* names)
+  LEGACY_SKILLS=(effortless-rulebooks rulebook-orchestrator rulebook-query rulebook-schema rulebook-conventions rulebook-workflow rulebook-pipeline rulebook-sql rulebook-airtable rulebook-diagnostics rulebook-omni-prompt)
+  for legacy in "${LEGACY_SKILLS[@]}"; do
+    dest="$SKILLS_DEST/$legacy"
+    if [ -e "$dest" ] || [ -L "$dest" ]; then
+      ((found++))
+      echo "  $legacy  (legacy)"
+    fi
+  done
 
   if [ "$found" -eq 0 ]; then
     echo "  (none found — nothing to uninstall)"
@@ -162,11 +165,14 @@ if [ "$MODE" = "uninstall" ]; then
     fi
   done
 
-  if [ -e "$OLD_SKILL" ] || [ -L "$OLD_SKILL" ]; then
-    rm -rf "$OLD_SKILL"
-    echo "  Removed: effortless-rulebooks (legacy)"
-    ((removed++))
-  fi
+  for legacy in "${LEGACY_SKILLS[@]}"; do
+    dest="$SKILLS_DEST/$legacy"
+    if [ -e "$dest" ] || [ -L "$dest" ]; then
+      rm -rf "$dest"
+      echo "  Removed: $legacy (legacy)"
+      ((removed++))
+    fi
+  done
 
   echo ""
   echo "Done — removed $removed skill(s)."
@@ -179,7 +185,7 @@ fi
 #  INSTALL
 # ================================================================
 echo ""
-echo "=== Effortless Rulebook Skills — Install ==="
+echo "=== Effortless Claude Skills — Install ==="
 echo ""
 echo "Source:      $SKILLS_SRC"
 echo "Destination: $SKILLS_DEST"
@@ -305,14 +311,33 @@ for skill in "${SKILLS[@]}"; do
   fi
 done
 
-# Clean up the old monolithic skill if it exists
-OLD_SKILL="$SKILLS_DEST/effortless-rulebooks"
-if [ -d "$OLD_SKILL" ] || [ -L "$OLD_SKILL" ]; then
+# Clean up legacy skills (old monolithic + old rulebook-* names)
+LEGACY_SKILLS=(effortless-rulebooks rulebook-orchestrator rulebook-query rulebook-schema rulebook-conventions rulebook-workflow rulebook-pipeline rulebook-sql rulebook-airtable rulebook-diagnostics rulebook-omni-prompt)
+legacy_found=0
+for legacy in "${LEGACY_SKILLS[@]}"; do
+  dest="$SKILLS_DEST/$legacy"
+  if [ -e "$dest" ] || [ -L "$dest" ]; then
+    ((legacy_found++))
+  fi
+done
+
+if [ "$legacy_found" -gt 0 ]; then
   echo ""
-  echo "  Found legacy monolithic skill: effortless-rulebooks"
-  if ask_yes_no "  Remove it? (it has been replaced by the modular skills)"; then
-    rm -rf "$OLD_SKILL"
-    echo "  Removed: effortless-rulebooks"
+  echo "  Found $legacy_found legacy skill(s) (old names or monolithic):"
+  for legacy in "${LEGACY_SKILLS[@]}"; do
+    dest="$SKILLS_DEST/$legacy"
+    if [ -e "$dest" ] || [ -L "$dest" ]; then
+      echo "    $legacy"
+    fi
+  done
+  if ask_yes_no "  Remove them? (replaced by the current effortless-* skills)"; then
+    for legacy in "${LEGACY_SKILLS[@]}"; do
+      dest="$SKILLS_DEST/$legacy"
+      if [ -e "$dest" ] || [ -L "$dest" ]; then
+        rm -rf "$dest"
+        echo "  Removed: $legacy"
+      fi
+    done
   fi
 fi
 
