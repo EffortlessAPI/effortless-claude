@@ -13,17 +13,17 @@ description: >
 - Plural for collections: `Customers`, `WorkflowSteps`, `TypesOfAgents`
 - Example: `ClientProgramSessions`, `DocumentCategories`, `ApprovalGates`
 
-## Primary Keys
-- Named `{SingularTableName}Id` — e.g., `CustomerId`, `WorkflowStepId`, `RoleId`
-- Always `datatype: "string"`, `type: "raw"`, `nullable: false`
-- Values are human-readable slugs: `"production-deployment-workflow"`, `"client-bob"`, `"cust0001"`
+## The Name Field (PRIMARY KEY)
+- **`Name` is ALWAYS the FIRST field in EVERY table. No exceptions.**
+- `Name` is ALWAYS a `formula`/`calculated` field that produces a lowercase, dash-separated compound key — the human-readable unique identifier for each row.
+- Formula pattern: `SUBSTITUTE(LOWER({{DisplayName}}), " ", "-")` for simple tables, or compound keys like `SUBSTITUTE(LOWER({{OrderNumber}} & "-" & {{Status}}), " ", "-")` for junction/child tables.
+- `Name` IS the primary key in the rulebook. It is query-friendly (no spaces), human-readable, and unique within the table.
+- In Airtable, this is the primary field (first column) that labels each record.
 
-## The Name Field
-- **Every table MUST have a `Name` field** (or equivalent human-readable compound key)
-- This is the display label for each row — the human-readable identity
-- In Airtable, this is the primary field (first column) that labels each record
-- It can be `raw` (user-entered) or `calculated` (derived from other fields)
-- Example: `Name = "client-" & SUBSTITUTE(LOWER({{CompanyName}}), " ", "-")`
+## Surrogate Keys (`{Entity}Id`) — NEVER in Schema
+- Surrogate keys (e.g., `CustomerId`, `WorkflowStepId`) are managed **by the execution substrate** (Airtable row IDs, Postgres UUIDs, etc.) — they are NEVER declared in omni prompts, schema definitions, or the rulebook's field list.
+- The `Name` formula IS the logical key. Substrates may add a surrogate key "off-screen" for referential integrity, but it is invisible to the domain model.
+- **Do NOT include `{Entity}Id` fields in omni prompts or table definitions. Ever.**
 
 ## Every Table and Field Must Have a Description
 - Descriptions form the semantic backbone of the DAG

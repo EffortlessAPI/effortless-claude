@@ -97,6 +97,14 @@ When creating prompts for Airtable's OMNI AI to set up tables, **always use the 
 
 This pattern ensures linked records are established first, making lookups trivial in Part 2. Never combine into a single file — OMNI will produce incorrect field types.
 
+### OMNI Prompt Field Rules
+
+1. **Table names are PascalCase** — `ShaclShapes`, NOT `shacl_shapes`
+2. **`Name` is ALWAYS the first field** — it is a formula that creates a lowercase, dash-separated compound key: `Name | formula | SUBSTITUTE(LOWER({{DisplayName}}), " ", "-")`
+3. **`DisplayName` (or `Title`/`Label`)** comes next — the human-readable natural language identifier
+4. **NEVER include `{Entity}Id` fields** — surrogate keys are managed by the substrate off-screen
+5. **Links use singular PascalCase**: `Schema | link:SDCSchemas`, `TargetClass | link:SDCTypes`
+
 ## When Airtable API Has Limitations
 
 Some operations (like modifying formula fields) cannot be done via API. When you hit these limitations:
