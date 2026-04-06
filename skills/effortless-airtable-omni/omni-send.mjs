@@ -200,13 +200,43 @@ async function main() {
   }
 
   await omniButton.click();
-  await page.waitForTimeout(2000);
+  console.error('  Waiting for OMNI panel to open (10s)...');
+  await page.waitForTimeout(10000);
+
+  // After clicking OMNI, we may land on a sub-panel. Check for "Back to Omni" and click it.
+  const backToOmni = await findBySelectors(page, [
+    'button:has-text("Back to Omni")',
+  ], 'Back to Omni');
+  if (backToOmni) {
+    console.error('  Found sub-panel, clicking Back to Omni...');
+    await backToOmni.click();
+    await page.waitForTimeout(3000);
+  }
 
   // Step 2: Find input and send prompt
   console.error('Finding input...');
+
+  // Debug: take a screenshot to see what panel is open
+  await page.screenshot({ path: resolve(SCREENSHOT_DIR, 'omni-debug-after-click.png'), fullPage: false });
+  console.error('  Debug screenshot saved: omni-debug-after-click.png');
+
+  // Also dump all inputs/textareas for debugging
+  const allInputs = await page.locator('textarea, input, [contenteditable="true"], [role="textbox"]').all();
+  console.error(`  Found ${allInputs.length} input elements:`);
+  for (const inp of allInputs.slice(0, 15)) {
+    const tag = await inp.evaluate(el => el.tagName).catch(() => '?');
+    const ph = await inp.getAttribute('placeholder').catch(() => '') || '';
+    const role = await inp.getAttribute('role').catch(() => '') || '';
+    const box = await inp.boundingBox().catch(() => null);
+    console.error(`    ${tag} placeholder="${ph}" role="${role}" visible=${!!box}`);
+  }
+
   const omniInput = await findBySelectors(page, [
+    'textarea[placeholder*="Ask me anything"]',
     'textarea[placeholder*="Ask"]',
     'textarea[placeholder*="ask"]',
+    '[placeholder*="Ask me anything"]',
+    'input[placeholder*="Ask me anything"]',
     '[role="textbox"]',
     '[contenteditable="true"]',
     'textarea',
