@@ -29,6 +29,55 @@ This is the top-level skill for ERB projects. It provides the mental model and r
         tables.*    <-- ALWAYS WRITE TO THESE
 ```
 
+## The Leopold Loop
+
+The "Leopold loop" is the user's name for the iterative ERB development cycle. It is the core *workflow* that makes ERB feel effortless. When the user says "Leopold loop," they mean this:
+
+```
+   1. CHANGE THE RULE (once, in Airtable — the SSoT)
+            |
+            v
+   2. effortless build  (one command)
+            |
+            v
+   3. EVERY DOWNSTREAM LAYER UPDATES AUTOMATICALLY
+      - effortless-rulebook.json (canonical model)
+      - postgres/01-05*.sql (tables, functions, views, seed data)
+      - ODXML schema
+      - C#/Go/Python/etc. base classes, ORM context, sync services
+            |
+            v
+   4. APP CODE (server, client) JUST CONSUMES THE GENERATED VIEWS
+      - reads from vw_* views
+      - treats calculated fields (e.g. is_stopped) as opaque
+      - NEVER reimplements business logic that lives in the rulebook
+            |
+            v
+   5. NEXT TURN OF THE LOOP — repeat from step 1
+```
+
+### Why it's effortless
+
+A single rule change propagates through every layer with **zero hand-written migrations, DTOs, ORM updates, API serializers, or client types**. The business logic ("a customer is stopped when CurrentColor is Green") lives in **exactly one place** — the Airtable formula → generated SQL function → exposed in the view as `is_stopped`. The app just reads `is_stopped`. If the rule flips ("now Red means stopped"), the loop runs once and *no app code changes*.
+
+Compare to "naked Claude" (hand-coding every layer): the same change requires editing a migration, seed data, DTO, ORM model, API serializer, client type, and client logic — and probably missing one and shipping a bug.
+
+### What "do a turn of the Leopold loop" implies
+
+When the user says things like *"rebuild the rulebook"*, *"update the app to match the current rules"*, or *"do a turn of the loop"*, they expect:
+
+1. **Run `effortless build`** to pull the current Airtable state through to all generated files.
+2. **Verify the generated artifacts** (check views, functions, base classes) reflect the new rule.
+3. **Update the app code only where it touches the schema surface** — column names, new fields, removed tables. **Never reimplement** rule logic in the app; consume the calculated fields from the view.
+4. **Restart the app** if the user's project convention requires it (e.g. `./start.sh`).
+
+### Leopold loop anti-patterns (DO NOT DO THESE)
+
+- **Reimplementing rule logic in the client**: e.g. computing `isStopped = customer.color === 'Red'` in JS instead of using `customer.is_stopped` from the view. This duplicates the rule and breaks the loop — when the rule changes in Airtable, the client silently goes wrong.
+- **Hand-editing generated files** (`postgres/01-05*.sql`, `dotnet/.../BaseClasses/*.cs`): they get blown away on the next build.
+- **Adding columns/fields directly in SQL or C#**: changes must originate in Airtable so they survive `effortless build`.
+- **Caching the rulebook output and forgetting to rebuild**: always rebuild before reasoning about the current state.
+
 ## Critical Guardrails
 
 1. **Query the rulebook FIRST, generated code SECOND** — The JSON has everything.
