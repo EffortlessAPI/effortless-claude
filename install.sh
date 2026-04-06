@@ -16,6 +16,22 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 SKILLS_SRC="$SCRIPT_DIR/skills"
 SKILLS_DEST="$HOME/.claude/skills"
 
+# Deprecated skills — these were merged/replaced and should be cleaned up
+# Parsed from DEPRECATED_SKILLS.md if it exists, or hardcoded as fallback
+DEPRECATED_SKILLS=()
+DEPRECATED_MD="$SCRIPT_DIR/DEPRECATED_SKILLS.md"
+if [ -f "$DEPRECATED_MD" ]; then
+  # Parse table rows: | skill-name | replaced-by | ...
+  while IFS='|' read -r _ skill _ ; do
+    skill="$(echo "$skill" | xargs)"  # trim whitespace
+    # Skip header, separator, and empty lines
+    [[ "$skill" =~ ^-+$ ]] && continue
+    [[ "$skill" == "Deprecated Skill" ]] && continue
+    [ -z "$skill" ] && continue
+    DEPRECATED_SKILLS+=("$skill")
+  done < <(grep '^|' "$DEPRECATED_MD" | tail -n +3)
+fi
+
 # Dynamically discover all skill folders under skills/
 SKILLS=()
 for d in "$SKILLS_SRC"/*/; do
@@ -292,14 +308,43 @@ for skill in "${SKILLS[@]}"; do
   fi
 done
 
+# ---------- clean up deprecated skills ----------
+deprecated_removed=0
+if [ "${#DEPRECATED_SKILLS[@]}" -gt 0 ]; then
+  for dep_skill in "${DEPRECATED_SKILLS[@]}"; do
+    dep_dest="$SKILLS_DEST/$dep_skill"
+    if [ -e "$dep_dest" ] || [ -L "$dep_dest" ]; then
+      # Check it's not also a current skill (safety guard)
+      is_current=false
+      for skill in "${SKILLS[@]}"; do
+        [ "$skill" = "$dep_skill" ] && is_current=true && break
+      done
+      if $is_current; then
+        continue
+      fi
+
+      echo ""
+      echo "  DEPRECATED: $dep_skill is still installed but has been replaced."
+      if ask_yes_no "  Remove deprecated skill '$dep_skill'?"; then
+        rm -rf "$dep_dest"
+        echo "  Removed: $dep_skill"
+        ((deprecated_removed++))
+      else
+        echo "  Kept: $dep_skill"
+      fi
+    fi
+  done
+fi
+
 # ---------- summary ----------
 echo ""
 echo "--- Summary ---"
 echo ""
 [ "$installed" -gt 0 ] && echo "  Installed: $installed new skill(s)"
 [ "$updated" -gt 0 ]   && echo "  Updated:   $updated skill(s)"
-[ "$skipped" -gt 0 ]   && echo "  Skipped:   $skipped skill(s) (kept existing)"
-[ "$installed" -eq 0 ] && [ "$updated" -eq 0 ] && [ "$skipped" -eq 0 ] && echo "  No changes made."
+[ "$skipped" -gt 0 ]            && echo "  Skipped:    $skipped skill(s) (kept existing)"
+[ "$deprecated_removed" -gt 0 ] && echo "  Deprecated: $deprecated_removed removed"
+[ "$installed" -eq 0 ] && [ "$updated" -eq 0 ] && [ "$skipped" -eq 0 ] && [ "$deprecated_removed" -eq 0 ] && echo "  No changes made."
 echo ""
 echo "Skills installed to: $SKILLS_DEST/"
 echo ""

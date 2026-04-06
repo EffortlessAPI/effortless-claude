@@ -16,12 +16,24 @@ ERB projects use Airtable as the authoritative source of truth for schema defini
 
 **In either case, always ask the user for permission before modifying the rulebook or Airtable.**
 
+## Getting the API Key
+
+**IMPORTANT: Always check the environment variable FIRST — do not grep config files or search the filesystem before trying this.**
+
+```bash
+echo "$AIRTABLE_API_KEY"
+```
+
+If `AIRTABLE_API_KEY` is set and non-empty, use it immediately. Only if it is empty, fall back in this order:
+1. `~/.ssotme/ssotme.key` → parse JSON → `APIKeys.airtable`
+2. `ssotme.json` → `ProjectSettings` → `_apikey_`
+
 ## Making Schema Changes
 
 **ALL schema changes must go through Airtable, then regenerate:**
 
 1. **Get the base ID** from `ssotme.json` (the `baseId` setting)
-2. **Get the API key** from `AIRTABLE_API_KEY` env var or `~/.ssotme/ssotme.key`
+2. **Get the API key** using the priority order above
 3. **Use the Airtable API** to make changes
 4. **Run `effortless build`** from project root to regenerate all code
 
