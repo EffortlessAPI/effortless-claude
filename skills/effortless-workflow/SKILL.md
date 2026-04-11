@@ -21,9 +21,10 @@ There are exactly two valid workflows. **Always prefer Path A** when possible.
 This is the standard flow. Airtable is the authoritative source.
 
 1. **Modify Airtable** — Add/change fields, data, or formulas in the Airtable base
-   - Requires `AIRTABLE_API_KEY` environment variable (or an alternative Airtable skill)
-   - If no API key is available, tell the user — they may set the env var or make the change in Airtable UI
-2. **Run `effortless build`** from the project root — this pulls from Airtable and regenerates everything downstream
+   - API key resolution: `AIRTABLE_API_KEY` env var > `~/.ssotme/ssotme.key` (`APIKeys.airtable`) > project settings
+   - Set the key via: `effortless -setAccountAPIKey airtable=patXXXXXXXX.XXXXXXXX`
+   - If no API key is available, tell the user — they may set it or make the change in Airtable UI
+2. **ALWAYS run `effortless build`** from the project root — this pulls from Airtable and regenerates everything downstream. **This step is mandatory after every Airtable modification — no exceptions.**
 
 ```
 Airtable (you edit here)

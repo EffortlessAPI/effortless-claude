@@ -46,11 +46,12 @@ description: >
 
 ## Finding the Base ID and API Key
 
-1. **Base ID**: Check `ssotme.json` -> `ProjectSettings` -> `baseId`. Also check transpiler `-p baseId=XXX` flags.
+1. **Base ID**: Check `effortless.json` (or legacy `ssotme.json`) -> `ProjectSettings` -> `baseId`. This is the canonical location — all airtable-facing tools read it from here.
 2. **API Key**: Priority order:
    - `AIRTABLE_API_KEY` environment variable
-   - `~/.ssotme/ssotme.key` -> `APIKeys.airtable`
-   - `ssotme.json` -> `ProjectSettings` -> `_apikey_`
+   - `~/.ssotme/ssotme.key` -> `APIKeys.airtable` (set via `effortless -setAccountAPIKey airtable=...`)
+   - `effortless.json` (or `ssotme.json`) -> `ProjectSettings` -> `_apikey_`
+3. **Setting the API Key**: `effortless -setAccountAPIKey airtable=patXXXXXXXX.XXXXXXXX`
 
 ## Running a Build
 
@@ -71,20 +72,41 @@ effortless build -id    # Runs rulebook-to-airtable (normally disabled)
 
 ## Installing Effortless Transpilers
 
-Transpilers are installed using the `effortless` CLI with the `-install` flag:
+Transpilers are installed using the `effortless` CLI with the `-install` flag. **CRITICAL: each tool MUST be installed from the directory where its output is expected.** The exact syntax is:
 
 ```bash
-effortless -install <transpiler-name> -p key=value -i input-file -o output-file [other flags]
+effortless -install <transpiler-name> -p param1=value1 -i input-file.txt -o output-file.json
 ```
 
-Examples:
+The installed transpiler configuration is stored in `effortless.json` (or legacy `ssotme.json`) under `ProjectTranspilers`, recording:
+- `RelativePath` — the folder the install was run from (relative to project root)
+- `CommandLine` — the full command with all flags
+
+### Standard Tool Installation Paths
+
+Each tool MUST be installed from its designated directory:
+
 ```bash
+# From /bootstrap/
+effortless -install raw-text-to-rulebook -i requirements.txt -o bootstrap-rulebook.json
+
+# From /effortless-rulebook/
 effortless -install airtable-to-rulebook -o effortless-rulebook.json -account airtable
+
+# From /effortless-rulebook/push-to-airtable/
+# ** THIS TOOL MUST BE DISABLED — not run by default **
+effortless -install rulebook-to-airtable -i ../effortless-rulebook.json -account airtable
+
+# From /postgres/
 effortless -install rulebook-to-postgres -i ../effortless-rulebook/effortless-rulebook.json
-effortless -install rulebook-to-airtable -i ../effortless-rulebook.json -account airtable -w 120000
+
+# From /docs/
+effortless -install rulebook-to-docs
 ```
 
-The installed transpiler configuration is stored in `ssotme.json` under `ProjectTranspilers`. The `CommandLine` field records the flags used at install time.
+**Critical:** The `rulebook-to-airtable` tool in `push-to-airtable/` must be disabled (`"IsDisabled": true`) so it is NOT run during a normal `effortless build`. It is only invoked explicitly with `effortless build -id` for reverse-sync (Path B).
+
+Every airtable-facing tool MUST include `-account airtable` so the CLI sends the API key from `~/.ssotme/ssotme.key`.
 
 ## Pipeline Flow
 

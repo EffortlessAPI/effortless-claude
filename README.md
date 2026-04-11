@@ -10,7 +10,7 @@ When installed as Claude Code skills, Claude will automatically activate the rel
 
 | Skill | Description |
 |-------|-------------|
-| `effortless-orchestrator` | Top-level ERB overview, mental model, and routing to other skills |
+| `effortless-claude` | Top-level ERB overview, mental model, and routing to other skills |
 | `effortless-query` | Querying `effortless-rulebook.json` — listing tables, extracting schema, finding relationships |
 | `effortless-schema` | JSON structure reference — field types, datatypes, formula syntax, `_meta` |
 | `effortless-conventions` | Naming rules, DAG structure, PK/FK patterns, no many-to-many |

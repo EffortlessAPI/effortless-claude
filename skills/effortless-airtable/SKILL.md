@@ -26,16 +26,65 @@ echo "$AIRTABLE_API_KEY"
 
 If `AIRTABLE_API_KEY` is set and non-empty, use it immediately. Only if it is empty, fall back in this order:
 1. `~/.ssotme/ssotme.key` → parse JSON → `APIKeys.airtable`
-2. `ssotme.json` → `ProjectSettings` → `_apikey_`
+2. `effortless.json` (or legacy `ssotme.json`) → `ProjectSettings` → `_apikey_`
+
+### Reading from `~/.ssotme/ssotme.key`
+
+The file is JSON:
+```json
+{
+  "EmailAddress": "user@example.com",
+  "Secret": "...",
+  "APIKeys": {
+    "airtable": "patXXXXXXXX.XXXXXXXX"
+  }
+}
+```
+
+Extract the key:
+```bash
+cat ~/.ssotme/ssotme.key | python3 -c "import sys,json; print(json.load(sys.stdin)['APIKeys']['airtable'])"
+```
+
+### Setting the API Key
+
+```bash
+effortless -setAccountAPIKey airtable=patXXXXXXXX.XXXXXXXX
+```
+
+This stores the key in `~/.ssotme/ssotme.key` under `APIKeys.airtable`.
+
+### The `-account airtable` Flag
+
+When using effortless CLI transpilers that talk to Airtable, **always pass `-account airtable`**. This tells the CLI to send the API key configured in `~/.ssotme/ssotme.key`:
+
+```bash
+effortless airtable-to-rulebook -o effortless-rulebook.json -account airtable
+effortless rulebook-to-airtable -i ../effortless-rulebook.json -account airtable
+```
+
+### `effortless.env`
+
+An `effortless.env` file in the project root can also store keys as environment variables (standard dotenv format). This is an alternative for project-scoped secrets.
+
+## Getting the Base ID
+
+The Airtable base ID for the project is stored in the project settings file (`effortless.json` or legacy `ssotme.json`) as `baseId`:
+
+```bash
+cat effortless.json | python3 -c "import sys,json; d=json.load(sys.stdin); print(next(s['Value'] for s in d['ProjectSettings'] if s['Name']=='baseId'))"
+```
+
+This base ID is shared across all airtable-facing tools and should always be read from here.
 
 ## Making Schema Changes
 
 **ALL schema changes must go through Airtable, then regenerate:**
 
-1. **Get the base ID** from `ssotme.json` (the `baseId` setting)
+1. **Get the base ID** from `effortless.json` or legacy `ssotme.json` (the `baseId` setting)
 2. **Get the API key** using the priority order above
 3. **Use the Airtable API** to make changes
-4. **Run `effortless build`** from project root to regenerate all code
+4. **ALWAYS run `effortless build`** from project root to regenerate all code — every time Airtable schema or data is modified, a build must follow
 
 ## Adding a Field to a Table
 
